@@ -1,0 +1,14 @@
+# Node
+node_modules/
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# React
+client/build/
+
+# OS junk
+.DS_Store
+Thumbs.db
