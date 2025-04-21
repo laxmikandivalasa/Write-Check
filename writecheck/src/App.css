@@ -1,0 +1,11 @@
+/* App.css */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+/* Optional: Custom class if you ever want */
+.custom-border {
+  border: 2px dashed #4f46e5;
+}
