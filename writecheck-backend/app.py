@@ -102,5 +102,25 @@ def list_files():
     files = os.listdir(UPLOAD_FOLDER)
     return jsonify({'files': files})
 
+# DELETE endpoint for file deletion
+@app.route('/delete/<filename>', methods=['DELETE'])
+def delete_file(filename):
+    try:
+        # Construct full file path
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        print(f"Attempting to delete: {file_path}")  # Log the file path
+
+        if os.path.exists(file_path):
+            os.remove(file_path)  # Delete the file
+            print(f"File {filename} deleted successfully")  # Log success
+            return jsonify({'message': f'File {filename} deleted successfully'}), 200
+        else:
+            print(f"File {filename} not found")  # Log error
+            return jsonify({'error': f'File {filename} not found'}), 404
+    except Exception as e:
+        # Log the exception
+        print(f"Error deleting file {filename}: {str(e)}")
+        return jsonify({'error': f'Error deleting file: {str(e)}'}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

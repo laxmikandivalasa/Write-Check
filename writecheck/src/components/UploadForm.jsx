@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Upload, FileText, Image, Trash2, Search } from 'lucide-react'; // Optional: using lucide-react icons
 
 const UploadForm = () => {
   const [files, setFiles] = useState([]);
@@ -82,16 +83,16 @@ const UploadForm = () => {
       setUploadStatus('Error checking duplicates.');
     }
   };
-
   const handleDeleteFile = async (filename) => {
     try {
       const res = await fetch(`http://localhost:5000/delete/${filename}`, {
         method: 'DELETE',
       });
       if (res.ok) {
-        fetchFiles();
+        fetchFiles(); // Refresh file list
       } else {
-        setUploadStatus('Failed to delete file');
+        const data = await res.json();
+        setUploadStatus(data.error || 'Failed to delete file');
       }
     } catch (err) {
       console.error(err);
@@ -99,16 +100,21 @@ const UploadForm = () => {
     }
   };
 
+
+
+
   return (
-    <div className="upload-form max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <div className="file-type-buttons flex gap-4 justify-center mb-4">
+    <div className="upload-form max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
+      <div className="file-type-buttons flex gap-4 justify-center mb-6">
         <button
           onClick={() => {
             setFileType('text');
             setUploadStatus('You can upload .pdf, .doc, .docx files');
           }}
-          className={`px-4 py-2 rounded-md ${fileType === 'text' ? 'bg-blue-700' : 'bg-blue-600'} text-white hover:bg-blue-700`}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200 text-white ${fileType === 'text' ? 'bg-blue-900' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
         >
+          <FileText size={18} />
           Text-based Files
         </button>
         <button
@@ -116,64 +122,76 @@ const UploadForm = () => {
             setFileType('handwritten');
             setUploadStatus('You can upload images of handwritten assignments');
           }}
-          className={`px-4 py-2 rounded-md ${fileType === 'handwritten' ? 'bg-blue-700' : 'bg-blue-600'} text-white hover:bg-blue-700`}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-200 text-white ${fileType === 'handwritten' ? 'bg-blue-900' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
         >
+          <Image size={18} />
           Handwritten Files
         </button>
       </div>
 
-      <p className="text-center mb-4 text-sm text-gray-700">{uploadStatus}</p>
+      <p className="text-center mb-6 text-sm text-gray-600 italic">{uploadStatus}</p>
 
-      <form
-        onSubmit={handleUpload}
-        className="flex flex-col items-center gap-4"
-      >
-        <input
-          type="file"
-          multiple
-          accept={fileType === 'text' ? '.pdf, .doc, .docx' : 'image/*'}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-md"
-        />
+      <form onSubmit={handleUpload} className="flex flex-col items-center gap-4">
+        <label className="w-full cursor-pointer">
+          <input
+            type="file"
+            multiple
+            accept={fileType === 'text' ? '.pdf, .doc, .docx' : 'image/*'}
+            onChange={handleChange}
+            className="hidden"
+          />
+          <div className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-400 rounded-lg hover:border-blue-500 transition-colors">
+            <Upload size={20} />
+            <span className="text-gray-700">Click to choose files</span>
+          </div>
+        </label>
         <button
           type="submit"
-          className={`px-4 py-2 rounded-md ${uploadBtnColor} text-white hover:bg-blue-700`}
+          className={`px-6 py-2.5 rounded-md ${uploadBtnColor} text-white hover:bg-blue-800 transition-all`}
         >
           Upload
         </button>
       </form>
 
-      <div className="uploaded-files mt-6">
-        <h3 className="text-lg font-semibold">Uploaded Files</h3>
-        <ul className="list-disc ml-5 space-y-2">
-          {uploadedFiles.map((filename) => (
-            <li key={filename} className="flex items-center justify-between">
-              {filename}
-              <button
-                onClick={() => handleDeleteFile(filename)}
-                className="ml-2 text-red-600 hover:underline"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div className="uploaded-files mt-8">
+        <h3 className="text-lg font-bold mb-2 text-gray-800">Uploaded Files</h3>
+        {uploadedFiles.length > 0 ? (
+          <ul className="space-y-2">
+            {uploadedFiles.map((filename) => (
+              <li key={filename} className="flex justify-between items-center bg-gray-100 px-4 py-2 rounded-md">
+                <span className="truncate">{filename}</span>
+                <button
+                  onClick={() => handleDeleteFile(filename)}
+                  className="text-red-600 hover:text-red-800 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-gray-500 italic">No files uploaded yet.</p>
+        )}
       </div>
 
-      <div className="check-duplicates mt-6">
+      <div className="check-duplicates mt-8 text-center">
         <button
           onClick={handleCheckDuplicates}
-          className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+          className="inline-flex items-center gap-2 px-5 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition-all"
         >
+          <Search size={18} />
           Check for Duplicates
         </button>
+
         {duplicates.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-semibold">Possible Duplicates:</h4>
-            <ul className="list-disc ml-5">
+          <div className="mt-6 text-left">
+            <h4 className="font-semibold text-gray-800">Possible Duplicates:</h4>
+            <ul className="list-disc ml-6 mt-2 space-y-1 text-gray-700">
               {duplicates.map(([file1, file2, score], index) => (
                 <li key={index}>
-                  {file1} ⟷ {file2} → Similarity: {(score * 100).toFixed(2)}%
+                  <span className="font-medium">{file1}</span> ⟷ <span className="font-medium">{file2}</span> → Similarity:{" "}
+                  <span className="text-yellow-700 font-semibold">{(score * 100).toFixed(2)}%</span>
                 </li>
               ))}
             </ul>
@@ -182,6 +200,7 @@ const UploadForm = () => {
       </div>
     </div>
   );
+
 };
 
 export default UploadForm;
